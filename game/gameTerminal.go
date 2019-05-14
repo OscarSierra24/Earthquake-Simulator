@@ -3,11 +3,13 @@ package game
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 )
 
 type Point struct {
-	x, y int
+	X, Y int
 }
 
 type Level struct {
@@ -17,9 +19,9 @@ type Level struct {
 
 type Person struct {
 	//Position in building
-	Position Point
+	Position []int
 	//Walking speed
-	Speed int
+	Speed float32
 	//Reference to map
 	Map_data *[][]string
 }
@@ -52,12 +54,12 @@ func LoadLevelFromFile(filename string) [][]string {
 	return mapData
 }
 
-func generatePeople(nPeople int, mapArray [][]string) []Person {
+func generatePeople(nPeople int, mapArray *[][]string) []Person {
 	var people []Person
 	//Available positions as an array of [x,y]
 	var positions [][]int
 
-	for i, row := range mapArray {
+	for i, row := range *mapArray {
 		for j, column := range row {
 			if column == "." {
 				var tmp_coord []int
@@ -71,10 +73,22 @@ func generatePeople(nPeople int, mapArray [][]string) []Person {
 		}
 
 	}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(positions), func(i, j int) { positions[i], positions[j] = positions[j], positions[i] })
 
-	var used int
+	positions = positions[:nPeople]
 
-	fmt.Println(positions)
+	for _, point := range positions {
+		people = append(
+			people,
+			Person{
+				point,
+				rand.Float32() * 10,
+				mapArray,
+			},
+		)
+	}
+
 	return people
 }
 
@@ -83,11 +97,12 @@ func clear() {
 }
 
 func Start() {
-	fmt.Println("Hello frens")
 	map_file := "game/maps/map1.map"
 	map_data := LoadLevelFromFile(map_file)
 
-	generatePeople(5, map_data)
+	people := generatePeople(5, &map_data)
+	fmt.Println(people)
+
 }
 
 /*
