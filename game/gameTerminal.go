@@ -194,7 +194,7 @@ func render_building(map_data [][]string, people []Person, salidas [][]int) {
 // Returns [][]  for chan(int,1 ) of available floor
 func get_floor(map_data [][]string) [][]chan (int) {
 	var floor [][]chan (int)
-	n_tokens := 1
+	n_tokens := 5
 	for _, row := range map_data {
 		var tmp []chan (int)
 		for range row {
@@ -212,10 +212,12 @@ func get_floor(map_data [][]string) [][]chan (int) {
 func (p *Person) run(path [][]int, floor [][]chan (int)) {
 	for len(path) > 0 {
 		time.Sleep(1 * time.Second)
-		x, y := path[0][0], path[0][1]
+		y, x := path[0][0], path[0][1]
 		path = path[1:]
+		//fmt.Println("Waiting for token")
 		//Ocupy next pos
 		floor[x][y] <- 1
+		//fmt.Println("Release token")
 		//Release last pos
 		<-floor[p.Position[0]][p.Position[1]]
 		//Logic
@@ -264,39 +266,34 @@ func Start() {
 	*/
 
 	/*
-ESTO quirino
-	clear()
-	closest:=10000
-	path:=[][]int{}
-	for i:=0;i<len(salidas);i++{
-		res := goastar.GetPath(4,3,salidas[i][0],salidas[i][1])	
-		if len(res)<closest && len(res)>0{
-			closest=len(res)
-			path=res
-		}
-	}
+		ESTO quirino
+			clear()
 
-	//res := goastar.GetPath(1,1,3,3)
-	fmt.Println(path)
 	*/
 
-
 	for _, p := range people {
+
 		xi, yi := p.Position[0], p.Position[1]
-		xf, yf := salidas[0][0], salidas[0][1]
-		tmp_path := goastar.GetPath(xi, yi, xf, yf)
-		fmt.Println(xi, yi, xf, yf, tmp_path)
-		go p.run(tmp_path, floor)
+
+		closest := 10000
+		path := [][]int{}
+		for i := 0; i < len(salidas); i++ {
+			res := goastar.GetPath(xi, yi, salidas[i][0], salidas[i][1])
+			if len(res) < closest && len(res) > 0 {
+				closest = len(res)
+				path = res
+			}
+		}
+
+		fmt.Println(xi, yi, salidas[0][0], salidas[0][1], path)
+		go p.run(path, floor)
 	}
 
-	var i int
 	for {
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 		clear()
-		fmt.Println(i)
 		render_building(map_data, people, salidas)
-		i++
 	}
 
 }
