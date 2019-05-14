@@ -103,6 +103,26 @@ func Start() {
 	people := generatePeople(5, &map_data)
 	fmt.Println(people)
 
+	for i, row := range map_data {
+		for j, column := range row {
+			p := false
+			for _, person := range people {
+				if i == person.Position[0] && j == person.Position[1] {
+					p = true
+				}
+			}
+
+			if p {
+				fmt.Print("p")
+			} else {
+				fmt.Print(column)
+			}
+
+		}
+		fmt.Println()
+
+	}
+
 }
 
 /*
