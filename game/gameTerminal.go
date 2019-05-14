@@ -54,6 +54,65 @@ func LoadLevelFromFile(filename string) [][]string {
 	return mapData
 }
 
+
+func generateSalidas(salidas int) [][]int{
+	s := rand.NewSource(time.Now().Unix())
+	r := rand.New(s)
+
+	pared:=make([]int, 0)
+	pared = append(pared, 1,2,3,4) // 1 izq, 2 der, 3 arriba, 4 abajo
+
+	fila := make([]int, 0)
+	fila = append(fila,
+		1,2,3,4,6,7,8,9,11,12,13,14,15,17,18,19,20,21)
+
+	fila1 := make([]int, 0)
+	fila1 = append(fila1,
+		1,2,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21)
+
+	columna := make([]int, 0)
+	columna = append(columna,
+		1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38)
+
+	columna1 := make([]int, 0)
+	columna1 = append(columna1,
+		1,2,3,4,5,6,7,8,10,11,12,13,15,16,17,18,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37,38)
+
+
+	groups := [][]int{}
+
+	for i :=0;i<salidas;i++{
+		rnd:=r.Intn(len(pared))
+		wall:=pared[rnd]
+
+		if(wall==1){
+			pos:=r.Intn(len(fila))
+			f:=fila[pos]
+			arr := []int{f,0}
+			groups=append(groups, arr)
+		}
+		if(wall==2){
+			pos:=r.Intn(len(fila1))
+			f:=fila1[pos]
+			arr := []int{f,39}
+			groups=append(groups, arr)
+		}
+		if(wall==3){
+			pos:=r.Intn(len(columna))
+			f:=columna[pos]
+			arr := []int{0,f}
+			groups=append(groups, arr)
+		}
+		if(wall==4){
+			pos:=r.Intn(len(columna1))
+			f:=columna1[pos]
+			arr := []int{22,f}
+			groups=append(groups, arr)
+		}
+	}
+	return groups
+}
+
 //Returns an arrray with available positions to walk at
 func get_positions(mapArray [][]string) [][]int {
 	var positions [][]int
@@ -101,19 +160,28 @@ func clear() {
 	fmt.Println("\033[2J")
 }
 
-func render_building(map_data [][]string, people []Person) {
+func render_building(map_data [][]string, people []Person, salidas [][]int) {
 	for i, row := range map_data {
 		for j, column := range row {
 			p := false
+			s := false
 			for _, person := range people {
 				if i == person.Position[0] && j == person.Position[1] {
 					p = true
 				}
 			}
 
+			for pos:=0;pos<len(salidas);pos++{
+				if i == salidas[pos][0] && j == salidas[pos][1] {
+					s = true
+				}
+			}
+
 			if p {
 				fmt.Print("p")
-			} else {
+			} else if s{
+				fmt.Print("|")
+			}else {
 				fmt.Print(column)
 			}
 
@@ -134,11 +202,12 @@ func Start() {
 
 	//Array of struct of people
 	people := generatePeople(100, &map_data, positions)
-
+	salidas := generateSalidas(20)
+	fmt.Print(salidas)
 	//var floor [][]chan (int)
 
 	clear()
-	render_building(map_data, people)
+	render_building(map_data, people,salidas)
 
 }
 
