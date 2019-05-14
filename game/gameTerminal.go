@@ -194,7 +194,7 @@ func render_building(map_data [][]string, people []Person, salidas [][]int) {
 // Returns [][]  for chan(int,1 ) of available floor
 func get_floor(map_data [][]string) [][]chan (int) {
 	var floor [][]chan (int)
-	n_tokens := 5
+	n_tokens := 100
 	for _, row := range map_data {
 		var tmp []chan (int)
 		for range row {
@@ -209,7 +209,7 @@ func get_floor(map_data [][]string) [][]chan (int) {
 	return floor
 }
 
-func (p *Person) run(path [][]int, floor [][]chan (int)) {
+func (p Person) run(path [][]int, floor [][]chan (int)) {
 	for len(path) > 0 {
 		time.Sleep(1 * time.Second)
 		y, x := path[0][0], path[0][1]
