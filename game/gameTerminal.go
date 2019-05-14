@@ -55,10 +55,10 @@ func LoadLevelFromFile(filename string) [][]string {
 }
 
 //Returns an arrray with available positions to walk at
-func get_positions(mapArray *[][]string) [][]int {
+func get_positions(mapArray [][]string) [][]int {
 	var positions [][]int
 
-	for i, row := range *mapArray {
+	for i, row := range mapArray {
 		for j, column := range row {
 			if column == "." {
 				var tmp_coord []int
@@ -75,11 +75,8 @@ func get_positions(mapArray *[][]string) [][]int {
 	return positions
 }
 
-func generatePeople(nPeople int, mapArray *[][]string) []Person {
+func generatePeople(nPeople int, mapArray *[][]string, positions [][]int) []Person {
 	var people []Person
-
-	//Available positions as an array of [x,y]
-	positions := get_positions(mapArray)
 
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(positions), func(i, j int) { positions[i], positions[j] = positions[j], positions[i] })
@@ -130,7 +127,10 @@ func Start() {
 	map_file := "game/maps/map1.map"
 	map_data := LoadLevelFromFile(map_file)
 
-	people := generatePeople(100, &map_data)
+	//Available positions as an array of [x,y]
+	positions := get_positions(map_data)
+
+	people := generatePeople(100, &map_data, positions)
 
 	clear()
 	render_building(map_data, people)
