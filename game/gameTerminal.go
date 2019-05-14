@@ -6,7 +6,8 @@ import (
 	"math/rand"
 	"os"
 	"time"
-	"github.com/OscarSierra24/Earthquake-Simulator/go-astar2"
+
+	goastar "github.com/OscarSierra24/Earthquake-Simulator/go-astar2"
 )
 
 type Point struct {
@@ -246,11 +247,39 @@ func Start() {
 	}
 
 	//fmt.Print(salidas)
+	/*
+		var tmp_path [][]int
+		tmp_path = append(tmp_path, []int{1, 1})
+		tmp_path = append(tmp_path, []int{2, 2})
+		tmp_path = append(tmp_path, []int{3, 3})
+		tmp_path = append(tmp_path, []int{4, 4})
+		tmp_path = append(tmp_path, []int{5, 5})
+		tmp_path = append(tmp_path, []int{6, 6})
+		tmp_path = append(tmp_path, []int{7, 7})
+		tmp_path = append(tmp_path, []int{8, 8})
+		tmp_path = append(tmp_path, []int{9, 9})
+		tmp_path = append(tmp_path, []int{10, 10})
+		tmp_path = append(tmp_path, []int{11, 11})
+		tmp_path = append(tmp_path, []int{12, 12})
+	*/
 
-	clear()
-	res := goastar.GetPath(1,1,3,3)
-    fmt.Println(res)
-	render_building(map_data, people, salidas)
+	for _, p := range people {
+		xi, yi := p.Position[0], p.Position[1]
+		xf, yf := salidas[0][0], salidas[0][1]
+		tmp_path := goastar.GetPath(xi, yi, xf, yf)
+		fmt.Println(xi, yi, xf, yf, tmp_path)
+		go p.run(tmp_path, floor)
+	}
+
+	var i int
+	for {
+
+		time.Sleep(10 * time.Second)
+		clear()
+		fmt.Println(i)
+		render_building(map_data, people, salidas)
+		i++
+	}
 
 }
 
