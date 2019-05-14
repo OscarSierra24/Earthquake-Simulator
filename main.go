@@ -7,5 +7,5 @@ import (
 
 func main() {
 	ui := &ui2d.UI2d{}
-	game.Run(ui)
+	game.Run(ui,4,5)
 }
