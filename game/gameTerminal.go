@@ -263,6 +263,24 @@ func Start() {
 		tmp_path = append(tmp_path, []int{12, 12})
 	*/
 
+	/*
+ESTO quirino
+	clear()
+	closest:=10000
+	path:=[][]int{}
+	for i:=0;i<len(salidas);i++{
+		res := goastar.GetPath(4,3,salidas[i][0],salidas[i][1])	
+		if len(res)<closest && len(res)>0{
+			closest=len(res)
+			path=res
+		}
+	}
+
+	//res := goastar.GetPath(1,1,3,3)
+	fmt.Println(path)
+	*/
+
+
 	for _, p := range people {
 		xi, yi := p.Position[0], p.Position[1]
 		xf, yf := salidas[0][0], salidas[0][1]
