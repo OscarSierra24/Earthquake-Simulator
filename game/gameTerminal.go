@@ -6,20 +6,22 @@ import (
 	"os"
 )
 
-type point struct {
+type Point struct {
 	x, y int
 }
 
 type Level struct {
 	Map    [][]string
-	Player [][]point
+	Player [][]Person
 }
 
-type person struct {
+type Person struct {
 	//Position in building
-	Position point
+	Position Point
 	//Walking speed
 	Speed int
+	//Reference to map
+	Map_data *[][]string
 }
 
 func LoadLevelFromFile(filename string) [][]string {
@@ -50,21 +52,42 @@ func LoadLevelFromFile(filename string) [][]string {
 	return mapData
 }
 
-func generatePeople(nPeople int, mapArray [][]string) []person {
-	var people []person
+func generatePeople(nPeople int, mapArray [][]string) []Person {
+	var people []Person
+	//Available positions as an array of [x,y]
+	var positions [][]int
 
-	for i := 0; i < nPeople; i++ {
-		people = append(people, person{
-			point{1,2}
-		})
+	for i, row := range mapArray {
+		for j, column := range row {
+			if column == "." {
+				var tmp_coord []int
+				tmp_coord = append(tmp_coord, i)
+				tmp_coord = append(tmp_coord, j)
+				positions = append(
+					positions,
+					tmp_coord)
+			}
+
+		}
+
 	}
+
+	var used int
+
+	fmt.Println(positions)
+	return people
+}
+
+func clear() {
+	fmt.Println("\033[2J")
 }
 
 func Start() {
 	fmt.Println("Hello frens")
 	map_file := "game/maps/map1.map"
-	LoadLevelFromFile(map_file)
+	map_data := LoadLevelFromFile(map_file)
 
+	generatePeople(5, map_data)
 }
 
 /*
