@@ -27,6 +27,22 @@ type Player struct {
 	Entity
 }
 
+func (p *Player) MoveUp() {
+	p.Y--
+}
+
+func (p *Player) MoveDown() {
+	p.Y++
+}
+
+func (p *Player) MoveLeft() {
+	p.X--
+}
+
+func (p *Player) MoveRight() {
+	p.X++
+}
+
 type Level struct {
 	Map [][]Tile
 	Player Player
