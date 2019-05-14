@@ -55,6 +55,7 @@ type Level struct {
 func esPersona(personas [][]int, x int, y int) int{
 	for i :=0;i<len(personas);i++{
 		if(personas[i][0]==x && personas[i][1]==y){
+			fmt.Printf("persona: %d %d", x,y)
 			return 1
 		}
 	}
@@ -64,6 +65,7 @@ func esPersona(personas [][]int, x int, y int) int{
 func esSalida(salidas [][]int, x int, y int) int{
 	for i :=0;i<len(salidas);i++{
 		if(salidas[i][0]==x && salidas[i][1]==y){
+			fmt.Printf("salida: %d %d", x,y)
 			return 1
 		}
 	}
@@ -105,12 +107,14 @@ func LoadLevelFromFile(filename string, salidas [][]int, personas [][]int) *Leve
 		for x,c := range line {
 			if(esSalida(salidas,y,x)==1){
 				fmt.Printf("es salida %d %d   ",y,x)
+				fmt.Println(" ")
 				level.Map[y][x] = Door
 				continue
 			}
 			if(esPersona(personas,y,x)==1){
 
 				fmt.Printf("es persona %d %d   ", y,x)
+				fmt.Println(" ")
 				level.Map[y][x] = Pending
 				
 				goastar.GetPath(y,x,salidas[0][0],salidas[1][1])
@@ -202,7 +206,7 @@ func generateSalidas(salidas int) [][]int{
 		if(wall==2){
 			pos:=r.Intn(len(fila1))
 			f:=fila1[pos]
-			arr := []int{22,f}
+			arr := []int{f,39}
 			groups=append(groups, arr)
 		}
 		if(wall==3){
@@ -214,7 +218,7 @@ func generateSalidas(salidas int) [][]int{
 		if(wall==4){
 			pos:=r.Intn(len(columna1))
 			f:=columna1[pos]
-			arr := []int{f,39}
+			arr := []int{22,f}
 			groups=append(groups, arr)
 		}
 	}
