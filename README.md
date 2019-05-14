@@ -14,6 +14,5 @@
 
 Authors:
 
-- Quirino
 - Oscar
 - Diego
