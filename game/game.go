@@ -16,11 +16,21 @@ const (
 	DirtFloor Tile = '.'
 	Door Tile = '|'
 	Blank Tile = ' ' 	
+	Pending Tile = -1 
 )
+
+type Entity struct {
+	X, Y int
+}
+
+type Player struct {
+	Entity
+}
 
 type Level struct {
 	Map [][]Tile
-}
+	Player Player
+}	
 
 func LoadLevelFromFile(filename string) *Level {
 	file, err := os.Open("game/maps/map1.map")
@@ -64,10 +74,33 @@ func LoadLevelFromFile(filename string) *Level {
 				t = Door
 			case '.':
 				t = DirtFloor
+			case 'P':
+				level.Player.X = x
+				level.Player.Y = y
+				t = Pending
+
 			default: 
 				panic("invalid character in map")
 			} 
 			level.Map[y][x] = t
+		}
+	}
+
+	for y, row := range level.Map {
+		for x, tile := range row {
+			if tile == Pending {
+				SearchLoop: 
+				for searchX := x-1; searchX <= x+1; searchX++ {
+					for searchY := y-1; searchY <= y+1; searchY++ {
+						searchTile := level.Map[searchY][searchY]
+						switch searchTile {
+						case DirtFloor:
+							level.Map[y][x] = DirtFloor
+							break SearchLoop
+						} 
+					}
+				}
+			}
 		}
 	}
 

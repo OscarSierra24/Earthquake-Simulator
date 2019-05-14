@@ -11,7 +11,7 @@ import (
 	"strconv"
 ) 
 
-const winWidth, winHeight = 1280, 720
+const winWidth, winHeight = 1280, 732
 
 var renderer *sdl.Renderer
 var textureAtlas *sdl.Texture
@@ -135,6 +135,7 @@ func (ui *UI2d) Draw(level *game.Level) {
 		} 
 	}
 
+	renderer.Copy(textureAtlas, &sdl.Rect{10 * 32, 60 * 32, 32, 32}, &sdl.Rect{int32(level.Player.X)*32, int32(level.Player.Y)*32, 32, 32})
 	renderer.Present()
 	for{}
 }
