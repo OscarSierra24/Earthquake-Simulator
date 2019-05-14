@@ -6,12 +6,47 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"image/png"
-)
+	"bufio"
+	"strings"
+	"strconv"
+) 
 
 const winWidth, winHeight = 1280, 720
 
 var renderer *sdl.Renderer
 var textureAtlas *sdl.Texture
+
+var textureIndex map[game.Tile]sdl.Rect
+
+func loadTextureIndex() {
+	textureIndex = make(map[game.Tile]sdl.Rect)
+
+	infile,err := os.Open("ui2d/assets/atlas-index.txt")
+	if err != nil {
+		panic(err)
+	}
+	scanner := bufio.NewScanner(infile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		line = strings.TrimSpace(line)
+		tileRune := game.Tile(line[0])
+		xy := line[1:]
+		splitXy := strings.Split(xy, ",")
+		x, err := strconv.ParseInt(strings.TrimSpace(splitXy[0]), 10, 64)
+		if err != nil {
+			panic(err)
+		}
+
+		y, err := strconv.ParseInt(strings.TrimSpace(splitXy[1]), 10, 64)
+		if err != nil {
+			panic(err)
+		}	
+	
+		rect := sdl.Rect{int32(x * 32), int32(y * 32), 32, 32}			
+		textureIndex[tileRune] = rect
+
+	}
+}
 
 type UI2d struct { 
 }
@@ -86,11 +121,20 @@ func init() {
 	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "1")
 
 	textureAtlas = imgFileToTexture("ui2d/assets/tiles.png")
-} 
+	loadTextureIndex()
+} 	
 
 func (ui *UI2d) Draw(level *game.Level) {
-	fmt.Println("we did something");
-	renderer.Copy(textureAtlas, nil, nil)
+
+	for y, row := range level.Map {
+		for x, tile := range row {
+			srcRect := textureIndex[tile]
+			dstRect := sdl.Rect{int32(x*32), int32(y*32), int32(32), int32(32)}
+			renderer.Copy(textureAtlas, &srcRect, &dstRect)
+
+		} 
+	}
+
 	renderer.Present()
-	sdl.Delay(5000)
+	for{}
 }

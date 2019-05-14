@@ -15,6 +15,7 @@ const (
 	StoneHall Tile = '#'
 	DirtFloor Tile = '.'
 	Door Tile = '|'
+	Blank Tile = ' ' 	
 )
 
 type Level struct {
@@ -45,6 +46,31 @@ func LoadLevelFromFile(filename string) *Level {
 	for i := range level.Map {
 		level.Map[i] = make([]Tile, longestRow)
 	}
+
+	for i := range level.Map {
+		level.Map[i] = make([]Tile, longestRow)
+	}
+
+	for y := 0; y < len(level.Map); y++ {
+		line := mapLines[y]
+		for x,c := range line {
+			var t Tile
+			switch c {
+			case ' ', '\t', '\n', '\r':
+				t = Blank
+			case '#':
+				t = StoneHall 
+			case '|':
+				t = Door
+			case '.':
+				t = DirtFloor
+			default: 
+				panic("invalid character in map")
+			} 
+			level.Map[y][x] = t
+		}
+	}
+
 	return level
 }
 
