@@ -125,12 +125,17 @@ func render_building(map_data [][]string, people []Person) {
 
 func Start() {
 	map_file := "game/maps/map1.map"
+
+	//Building data as a 2d array
 	map_data := LoadLevelFromFile(map_file)
 
 	//Available positions as an array of [x,y]
 	positions := get_positions(map_data)
 
+	//Array of struct of people
 	people := generatePeople(100, &map_data, positions)
+
+	//var floor [][]chan (int)
 
 	clear()
 	render_building(map_data, people)
