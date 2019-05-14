@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"time"
+	"github.com/OscarSierra24/Earthquake-Simulator/go-astar2"
 )
 
 type Point struct {
@@ -247,7 +248,8 @@ func Start() {
 	//fmt.Print(salidas)
 
 	clear()
-
+	res := goastar.GetPath(1,1,3,3)
+    fmt.Println(res)
 	render_building(map_data, people, salidas)
 
 }
