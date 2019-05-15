@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/OscarSierra24/Earthquake-Simulator/pathfinding"
 )
 
 const WALL string = "#"
@@ -274,4 +276,5 @@ func Start() {
 
 	fmt.Println(exits)
 	renderBuilding(mapData, people, texture, skins)
+	pathfinding.DFS(1, 1, &mapData, WALL, FLOOR, DOOR)
 }
