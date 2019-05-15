@@ -14,5 +14,6 @@
 
 Authors:
 
-- Oscar
-- Diego
+- OscarSierra24
+- Dcrdn
+- QuirinoC
