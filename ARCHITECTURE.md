@@ -2,6 +2,8 @@
 
 Earthquake-Simulator.go
 
+![](Diagrams/diagram.png)
+
 External libraries
 
 ## METHODS
@@ -9,7 +11,7 @@ External libraries
 #### main() ()
 executes the game package start method.
 
-### gameTErminal.go
+### gameTerminal.go
 #### LoadLevelFromFile(string) ([][] string)
 Opens the file, read the map and returns a bidimensional array that contains tokens that represent objects
 
