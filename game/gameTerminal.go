@@ -178,7 +178,7 @@ func render_building(map_data [][]string, people []Person, salidas [][]int) {
 			}
 
 			if p {
-				fmt.Print("p")
+				fmt.Print("🕴")
 			} else if s {
 				fmt.Print("|")
 			} else {
@@ -194,7 +194,7 @@ func render_building(map_data [][]string, people []Person, salidas [][]int) {
 // Returns [][]  for chan(int,1 ) of available floor
 func get_floor(map_data [][]string) [][]chan (int) {
 	var floor [][]chan (int)
-	n_tokens := 100
+	n_tokens := 2
 	for _, row := range map_data {
 		var tmp []chan (int)
 		for range row {
@@ -230,6 +230,8 @@ func (p Person) run(path [][]int, floor [][]chan (int)) {
 func Start() {
 	map_file := "game/maps/map1.map"
 
+	nPeople := 100
+
 	//Building data as a 2d array
 	map_data := LoadLevelFromFile(map_file)
 
@@ -237,7 +239,7 @@ func Start() {
 	positions := get_positions(map_data)
 
 	//Array of struct of people
-	people := generatePeople(100, &map_data, positions)
+	people := generatePeople(nPeople, &map_data, positions)
 	salidas := generateSalidas(20)
 
 	//Floor in which one can be
@@ -289,13 +291,30 @@ func Start() {
 		go p.run(path, floor)
 	}
 
-	for {
+	var time_left float32
+	time_left = 20.0
 
-		time.Sleep(1 * time.Second)
+	go func() {
+
+		for time_left > 0 {
+			time_left -= 0.1
+			time.Sleep(100 * time.Millisecond)
+		}
+		if time_left < 0 {
+			time_left = 0
+		}
+	}()
+
+	for time_left > 0 {
+
+		time.Sleep(500 * time.Millisecond)
 		clear()
+		fmt.Println("Time left: ", time_left)
 		render_building(map_data, people, salidas)
 	}
-
+	clear()
+	//left_count := 0
+	//fmt.Println(nPeople, "Invidivuals were able to get out")
 }
 
 /*
