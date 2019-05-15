@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+const WALL string = "#"
+const FLOOR string = "."
+const DOOR string = "|"
+
 type point struct {
 	X, Y int
 }
@@ -49,8 +53,68 @@ func loadLevelFromFile(filename string) [][]string {
 	return mapData
 }
 
-func generateExits(mapArray *[][]string) {
+func generateExits(nExits int, mapArray *[][]string) [][]int {
+	var border [][]int
 
+	for i, row := range *mapArray {
+		for j := range row {
+			//Checks if coords are in border
+			if i == 0 || i == len(*mapArray)-1 || j == 0 || j == len(row)-1 {
+				border = append(
+					border,
+					[]int{i, j},
+				)
+			}
+
+		}
+	}
+	var i int
+	var exitArray [][]int
+	for i < nExits {
+
+		rand.Shuffle(len(border), func(i, j int) {
+			border[i], border[j] = border[j], border[i]
+		})
+
+		x, y := border[0][0], border[0][1]
+
+		//Tests if exit is valid or not
+		isValid := true
+
+		//Upper border
+		if x == 0 {
+			if (*mapArray)[x+1][y] == WALL {
+				isValid = false
+			}
+		}
+		//Lower border
+		if x == len(*mapArray)-1 {
+			if (*mapArray)[x-1][y] == WALL {
+				isValid = false
+			}
+		}
+		//Left border
+		if y == 0 {
+			if (*mapArray)[x][y+1] == WALL {
+				isValid = false
+			}
+		}
+		//Right border
+		if y == len((*mapArray)[0])-1 {
+			if (*mapArray)[x][y-1] == WALL {
+				isValid = false
+			}
+		}
+		if isValid {
+			(*mapArray)[x][y] = DOOR
+			exitArray = append(exitArray, []int{x, y})
+			i++
+
+		}
+
+		border = border[1:]
+	}
+	return exitArray
 }
 
 //Returns an arrray with available positions to walk at
@@ -102,29 +166,25 @@ func clear() {
 	fmt.Println("\033[2J")
 }
 
-func renderBuilding(mapData [][]string, people []person, salidas [][]int) {
+func renderBuilding(mapData [][]string, people []person, textures map[string]string, skins []string) {
 	for i, row := range mapData {
 		for j, column := range row {
 			p := false
-			s := false
 			for _, person := range people {
 				if i == person.Position[0] && j == person.Position[1] {
 					p = true
 				}
 			}
-
-			for pos := 0; pos < len(salidas); pos++ {
-				if i == salidas[pos][0] && j == salidas[pos][1] {
-					s = true
-				}
-			}
-
 			if p {
-				fmt.Print("🕴")
-			} else if s {
-				fmt.Print("|")
+				rand.Shuffle(len(skins), func(i, j int) {
+					skins[i], skins[j] = skins[j], skins[i]
+				})
+				fmt.Print(skins[0])
 			} else {
-				fmt.Print(column)
+				fmt.Print(
+
+					textures[column],
+				)
 			}
 
 		}
@@ -173,7 +233,8 @@ func (p person) run(path [][]int, floor [][]chan (int)) {
 func Start() {
 	mapFile := "game/maps/map1.map"
 
-	nPeople := 100
+	nPeople := 20
+	nExits := 5
 
 	//Building data as a 2d array
 	mapData := loadLevelFromFile(mapFile)
@@ -193,6 +254,22 @@ func Start() {
 	}
 
 	//Generate the exits for the people
+	generateExits(nExits, &mapData)
 
-	renderBuilding(mapData, people, nil)
+	//Texture map
+	texture := map[string]string{
+		//Floor
+		"#": "◽️",
+		//Wall
+		".": " ",
+		//Door
+		"|": "🚪",
+	}
+
+	//People skins
+	skins := []string{
+		"👮‍", "👩", "👨‍", "👶", "👨",
+	}
+
+	renderBuilding(mapData, people, texture, skins)
 }
