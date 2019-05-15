@@ -36,6 +36,7 @@ def read_map(path: str) -> []:
 def transform_map(map_data: [], to_map: {}) -> []:
     for i, row in enumerate(map_data):
         for j, col in enumerate(row):
+            print(to_map, map_data[i][j])
             map_data[i][j] = to_map[map_data[i][j]]
 
 def save_map(path: str, map_data: []):
@@ -45,12 +46,16 @@ def save_map(path: str, map_data: []):
                 "".join(row) + "\n"
             )
 
-    
-
-
-
 if __name__ == "__main__" :
-    m = read_map("map1.map")
+    import sys
+
+    if len(sys.argv) < 3:
+        print("Usage err: python map_converter.py inputfile outputfile")
+
+    file_input = sys.argv[1]
+    file_output = sys.argv[2]
+
+    m = read_map(file_input)
 
     mask = {
         "#": "1",
@@ -59,6 +64,6 @@ if __name__ == "__main__" :
     }
     transform_map(m, mask)
 
-    save_map("out.map",m)
+    save_map(file_output,m)
 
 
