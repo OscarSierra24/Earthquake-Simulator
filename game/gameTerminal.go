@@ -53,6 +53,7 @@ func loadLevelFromFile(filename string) [][]string {
 	return mapData
 }
 
+//adds exits to mapArray and returns the coords as an array
 func generateExits(nExits int, mapArray *[][]string) [][]int {
 	var border [][]int
 
@@ -254,7 +255,7 @@ func Start() {
 	}
 
 	//Generate the exits for the people
-	generateExits(nExits, &mapData)
+	exits := generateExits(nExits, &mapData)
 
 	//Texture map
 	texture := map[string]string{
@@ -271,5 +272,6 @@ func Start() {
 		"👮‍", "👩", "👨‍", "👶", "👨",
 	}
 
+	fmt.Println(exits)
 	renderBuilding(mapData, people, texture, skins)
 }
