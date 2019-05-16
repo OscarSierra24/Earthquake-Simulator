@@ -25,6 +25,8 @@ type person struct {
 	Speed float32
 	//Reference to map
 	mapData *[][]string
+	//Skin for printing
+	skin string
 }
 
 func loadLevelFromFile(filename string) [][]string {
@@ -141,7 +143,7 @@ func getPositions(mapArray [][]string) [][]int {
 	return positions
 }
 
-func generatePeople(nPeople int, mapArray *[][]string, positions [][]int) []person {
+func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins []string) []person {
 	var people []person
 
 	rand.Seed(time.Now().UnixNano())
@@ -152,12 +154,17 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int) []pers
 	positions = positions[:nPeople]
 
 	for _, point := range positions {
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(skins), func(i, j int) {
+			skins[i], skins[j] = skins[j], skins[i]
+		})
 		people = append(
 			people,
 			person{
 				point,
 				rand.Float32() * 10,
 				mapArray,
+				skins[0],
 			},
 		)
 	}
@@ -173,16 +180,16 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 	for i, row := range mapData {
 		for j, column := range row {
 			p := false
+			skin := "p"
 			for _, person := range people {
 				if i == person.Position[0] && j == person.Position[1] {
 					p = true
+					skin = person.skin
+					break
 				}
 			}
 			if p {
-				rand.Shuffle(len(skins), func(i, j int) {
-					skins[i], skins[j] = skins[j], skins[i]
-				})
-				fmt.Print(skins[0])
+				fmt.Print(skin)
 			} else {
 				fmt.Print(
 
@@ -199,7 +206,7 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 // Returns [][]  for chan(int,1 ) of available floor
 func getFloor(mapData [][]string) [][]chan (int) {
 	var floor [][]chan (int)
-	nTokens := 2
+	nTokens := 100
 	for _, row := range mapData {
 		var tmp []chan (int)
 		for range row {
@@ -216,8 +223,8 @@ func getFloor(mapData [][]string) [][]chan (int) {
 
 func (p person) run(path [][]int, floor [][]chan (int)) {
 	for len(path) > 0 {
-		time.Sleep(1 * time.Second)
-		y, x := path[0][0], path[0][1]
+		time.Sleep(400 * time.Millisecond)
+		x, y := path[0][0], path[0][1]
 		path = path[1:]
 		//fmt.Println("Waiting for token")
 		//Ocupy next pos
@@ -234,30 +241,11 @@ func (p person) run(path [][]int, floor [][]chan (int)) {
 
 //Start ...
 func Start() {
+	//Setup
 	mapFile := "game/maps/map1.map"
 
-	nPeople := 20
-	nExits := 5
-
-	//Building data as a 2d array
-	mapData := loadLevelFromFile(mapFile)
-
-	//Available positions as an array of [x,y]
-	positions := getPositions(mapData)
-
-	//Array of struct of people
-	people := generatePeople(nPeople, &mapData, positions)
-
-	//Floor in which one can be
-	floor := getFloor(mapData)
-
-	//Populate floor
-	for _, p := range people {
-		floor[p.Position[0]][p.Position[1]] <- 1
-	}
-
-	//Generate the exits for the people
-	exits := generateExits(nExits, &mapData)
+	nPeople := 50
+	nExits := 3
 
 	//Texture map
 	texture := map[string]string{
@@ -267,15 +255,62 @@ func Start() {
 		".": " ",
 		//Door
 		"|": "🚪",
+		//Path taken,
+		"+": "🔺",
 	}
 
 	//People skins
 	skins := []string{
 		"👮‍", "👩", "👨‍", "👶", "👨",
 	}
+	//Setup
 
-	fmt.Println(exits)
-	pathfinding.BFS(1, 1, &mapData, WALL, FLOOR, DOOR)
-	renderBuilding(mapData, people, texture, skins)
+	//Building data as a 2d array
+	mapData := loadLevelFromFile(mapFile)
+
+	//Available positions as an array of [x,y]
+	positions := getPositions(mapData)
+
+	//Array of struct of people
+	people := generatePeople(nPeople, &mapData, positions, skins)
+	//time.Sleep(5 * time.Second)
+	//Floor in which one can be
+	floor := getFloor(mapData)
+
+	//Populate floor
+	for _, p := range people {
+		floor[p.Position[0]][p.Position[1]] <- 1
+	}
+
+	//Generate the exits for the people
+	generateExits(nExits, &mapData)
+
+	for _, p := range people {
+		path := pathfinding.BFS(
+			p.Position[0],
+			p.Position[1],
+			&mapData,
+			WALL,
+			FLOOR,
+			DOOR,
+		)
+		fmt.Println(path)
+		//time.Sleep(1 * time.Second)
+		go p.run(path, floor)
+	}
+	//Print render every 200ms
+	for {
+		clear()
+		renderBuilding(mapData, people, texture, skins)
+		time.Sleep(300 * time.Millisecond)
+	}
+
+	//fmt.Println(exits, "<- Exits location")
+	//path := pathfinding.BFS(1, 20, &mapData, WALL, FLOOR, DOOR)
+	//for _, p := range path {
+	//	(mapData)[p[0]][p[1]] = "+"
+	//}
+	//fmt.Println(path)
+	//renderBuilding(mapData, people, texture, skins)
 
 }

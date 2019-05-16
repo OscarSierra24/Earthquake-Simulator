@@ -1,7 +1,5 @@
 package pathfinding
 
-import "fmt"
-
 func validSquare(x int, y int, matrix *[][]string, visited *[][]bool, WALL string) bool {
 	if x < 0 || x >= len(*matrix) || y < 0 || y >= len((*matrix)[0]) {
 		return false
@@ -14,7 +12,7 @@ func validSquare(x int, y int, matrix *[][]string, visited *[][]bool, WALL strin
 //wall is obstacle
 //floor is were the path can be drawn
 //goal is were the path can end
-func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL string) {
+func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL string) [][]int {
 	var visited [][]bool
 	for _, row := range *matrix {
 		var tmp []bool
@@ -23,14 +21,8 @@ func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL strin
 		}
 		visited = append(visited, tmp)
 	}
-	var parents [][][]int
-	for _, row := range *matrix {
-		var tmp [][]int
-		for range row {
-			tmp = append(tmp, []int{-1, -1})
-		}
-		parents = append(parents, tmp)
-	}
+	parents := make(map[int][]int, len(*matrix)*len((*matrix)[0]))
+	//var parents map[int][]int
 
 	stack := [][]int{[]int{x, y}}
 
@@ -49,12 +41,18 @@ func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL strin
 		down := []int{i + -1, j}
 		left := []int{i, j - 1}
 		right := []int{i, j + 1}
+		//ADVANCED
 
 		var neighbours [][]int
+		neighbours = append(neighbours, right)
+		neighbours = append(neighbours, left)
 		neighbours = append(neighbours, up)
 		neighbours = append(neighbours, down)
-		neighbours = append(neighbours, left)
-		neighbours = append(neighbours, right)
+		//Shuffle
+		//rand.Seed(time.Now().UTC().UnixNano())
+		//rand.Shuffle(len(neighbours), func(i, j int) {
+		//	neighbours[i], neighbours[j] = neighbours[j], neighbours[i]
+		//})
 
 		//Test for valid up, down, left, right neighbours
 		for _, n := range neighbours {
@@ -62,35 +60,33 @@ func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL strin
 			if validSquare(tmpX, tmpY, matrix, &visited, WALL) {
 				visited[tmpX][tmpY] = true
 				stack = append(stack, n)
-				parents[tmpX][tmpY] = []int{i, j}
+
+				//Generate unique key for map
+				key := n[0]*len((*matrix)[0]) + n[1]
+				parents[key] = []int{i, j}
 			}
 		}
 		stack = stack[1:]
 
 	}
 	var path [][]int
-	/*
-		for _, row := range visited {
-			for _, col := range row {
-				if col {
-					fmt.Print(0)
-				} else {
-					fmt.Print(1)
-				}
+	for {
 
-			}
-			fmt.Println()
-		}
-	*/
-	for goalX != x && goalY != y {
 		path = append(path, []int{goalX, goalY})
-		goalX, goalY = parents[goalX][goalY][0], parents[goalX][goalY][1]
-		fmt.Println(goalX, goalY)
-	}
-	for i := range parents {
-		fmt.Println(parents[i])
+		key := goalX*len((*matrix)[0]) + goalY
+		goalX, goalY = parents[key][0], parents[key][1]
+		//fmt.Println(goalX, goalY)
+		if goalX == x {
+			if goalY == y {
+				break
+			}
+		}
 	}
 
-	fmt.Println(goalX, goalY, "<- Result")
-
+	//The other one is reversed
+	var actualPath [][]int
+	for i := range path {
+		actualPath = append(actualPath, path[len(path)-i-1])
+	}
+	return actualPath
 }
