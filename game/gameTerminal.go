@@ -195,11 +195,11 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 				}
 			}
 			if p {
-				fmt.Print(skin)
+				fmt.Print(skin, " ")
 			} else {
 				fmt.Print(
-
 					textures[column],
+					" ",
 				)
 			}
 
