@@ -3,6 +3,7 @@ package game
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -267,6 +268,24 @@ func (p person) run(path [][]int, floor [][]chan (int)) {
 
 }
 
+//Show stats about who is in and out
+func showStats(people []person) {
+	fmt.Print("People inside building: ")
+	for _, p := range people {
+		if *p.isInside == 1 {
+			fmt.Print(p.skin, " ")
+		}
+	}
+	fmt.Println()
+	fmt.Print("People outisde building:")
+	for _, p := range people {
+		if *p.isInside == 0 {
+			fmt.Print(p.skin, " ")
+		}
+	}
+	fmt.Println()
+}
+
 //Start ...
 func Start() {
 	//Setup
@@ -287,6 +306,15 @@ func Start() {
 	text, _ = reader.ReadString('\n')
 	text = strings.Replace(text, "\n", "", -1)
 	nExits, err := strconv.Atoi(text)
+	if err != nil {
+		fmt.Println("Not a number")
+		os.Exit(-1)
+	}
+
+	fmt.Print("Time (seconds) for people to run : ")
+	text, _ = reader.ReadString('\n')
+	text = strings.Replace(text, "\n", "", -1)
+	running_time, err := strconv.Atoi(text)
 	if err != nil {
 		fmt.Println("Not a number")
 		os.Exit(-1)
@@ -363,39 +391,40 @@ func Start() {
 		go p.run(path, floor)
 	}
 
+	running := true
+
+	startTime := time.Now()
+
 	//Timer
 	go func() {
-		time.NewTimer(2 * time.Second)
+		t := time.NewTimer(time.Duration(running_time) * time.Second)
+
+		<-t.C
+		running = false
 	}()
 
 	//Print render every 250ms while timer is up
-	for {
+	for running {
 		clear()
+		elapsedTime := time.Now().Sub(startTime).Seconds()
+		timeLeft := math.Floor((float64(running_time)-elapsedTime)*100) / 100
+
+		fmt.Println(timeLeft, "Seconds left for building to collapse")
 		renderBuilding(mapData, people, texture, skins)
-		fmt.Print("People inside building: ")
-		for _, p := range people {
-			if *p.isInside == 1 {
-				fmt.Print(p.skin, " ")
-			}
-		}
-		fmt.Println()
-		fmt.Print("People outisde building:")
-		for _, p := range people {
-			if *p.isInside == 0 {
-				fmt.Print(p.skin, " ")
-			}
-		}
+		showStats(people)
 
 		time.Sleep(250 * time.Millisecond)
 
 	}
 
-	//fmt.Println(exits, "<- Exits location")
-	//path := pathfinding.BFS(1, 20, &mapData, WALL, FLOOR, DOOR)
-	//for _, p := range path {
-	//	(mapData)[p[0]][p[1]] = "+"
-	//}
-	//fmt.Println(path)
-	//renderBuilding(mapData, people, texture, skins)
+	//Final stats
+	//Count number of survivors
+	var survivors int
+	for _, p := range people {
+		if *p.isInside == 0 {
+			survivors++
+		}
+	}
 
+	fmt.Println(nPeople, "were inside the building,", survivors, "were able to get out")
 }
