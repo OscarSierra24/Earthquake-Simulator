@@ -42,19 +42,19 @@ func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL strin
 		left := []int{i, j - 1}
 		right := []int{i, j + 1}
 		//ADVANCED
-		upright := []int{i + 1, j + 1}
-		upleft := []int{i + 1, j - 1}
-		downleft := []int{i - 1, j - 1}
-		downright := []int{i - 1, j + 1}
+		//upright := []int{i + 1, j + 1}
+		//upleft := []int{i + 1, j - 1}
+		//downleft := []int{i - 1, j - 1}
+		//downright := []int{i - 1, j + 1}
 
 		var neighbours [][]int
-		neighbours = append(neighbours, upleft)
+		//neighbours = append(neighbours, upleft)
 		neighbours = append(neighbours, up)
-		neighbours = append(neighbours, upright)
+		//neighbours = append(neighbours, upright)
 		neighbours = append(neighbours, right)
-		neighbours = append(neighbours, downright)
+		//neighbours = append(neighbours, downright)
 		neighbours = append(neighbours, down)
-		neighbours = append(neighbours, downleft)
+		//neighbours = append(neighbours, downleft)
 		neighbours = append(neighbours, left)
 
 		//Shuffle

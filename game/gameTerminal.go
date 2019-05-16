@@ -212,7 +212,7 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 // Returns [][]  for chan(int,1 ) of available floor
 func getFloor(mapData [][]string) [][]chan struct{} {
 	var floor [][]chan struct{}
-	nTokens := 5
+	nTokens := 2
 	for _, row := range mapData {
 		var tmp []chan struct{}
 		for range row {
@@ -348,11 +348,11 @@ func Start() {
 	//Texture map
 	texture := map[string]string{
 		//Wall
-		"#": "#",
+		"#": "■",
 		//Floor
-		".": ".",
+		".": " ",
 		//Door
-		"|": "🚪",
+		"|": "|",
 		//Path taken,
 		"+": "🔺",
 	}
@@ -363,16 +363,16 @@ func Start() {
 	}
 
 	//Default
-	texture = map[string]string{
-		//Wall
-		"#": "#",
-		//Floor
-		".": ".",
-		//Door
-		"|": "|",
-		//Path taken,
-		"+": "+",
-	}
+	//texture = map[string]string{
+	//	//Wall
+	//	"#": "#",
+	//	//Floor
+	//	".": ".",
+	//	//Door
+	//	"|": "|",
+	//	//Path taken,
+	//	"+": "+",
+	//}
 	skins = []string{
 		"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
 		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
@@ -398,7 +398,7 @@ func Start() {
 
 	//Generate the exits for the people
 	exits := generateExits(nExits, &mapData)
-	fmt.Println(exits)
+	//fmt.Println(exits)
 
 	//Tell everyone to start running
 	for _, p := range people {
@@ -453,7 +453,7 @@ func Start() {
 	fmt.Println(nPeople, "were inside the building,", survivors, "were able to get out")
 
 	//Debug stuff
-	for _, p := range people {
-		fmt.Println(p.Position, *p.isInside, p.skin)
-	}
+	//for _, p := range people {
+	//fmt.Println(p.Position, *p.isInside, p.skin)
+	//}
 }
