@@ -1,4 +1,11 @@
 from pprint import pprint
+from os import system
+
+
+'''
+Consts for map
+'''
+DOOR = "|"
 
 def read_map(path: str) -> []:
     data = []
@@ -12,17 +19,31 @@ def read_map(path: str) -> []:
             l = f.readline()
     return data
 
-path = "../game/maps/copy.map"
+path = "game/maps/copy.map"
 
 m = read_map(path)
 
+
+def renderMatrix(mapData, texture,visited):
+    for i,row in enumerate(mapData):
+        for j, c in enumerate(row):
+
+            print(
+                texture[c],
+                end = ' ',
+            )
+        print()
+
+
+def clear():
+    system("clear")
 
 def valid(x,y, m, visited):
     if x < 0 or x >= len(m) or y < 0 or y >= len(m[0]):
         return False
     return (x,y) not in visited and m[x][y] != "#"
 
-def dfs(x,y, m):
+def dfs(x,y, m, texture_map):
 
     #Visited
     visited = {(x,y)}
@@ -49,10 +70,18 @@ def dfs(x,y, m):
         down = (i-1,j)
         left = (i,j-1)
         right = (i,j+1)
+        upright = (i+1, j+1)
+        upleft = (i+1, j-1)
+        downleft = (i-1, j-1)
+        downright = (i-1, j+1)
 
         #Test for valid up,down, left and right blocks
-        for _, n in enumerate([up, down, left, right]):
+        #diagonals
+        d = [up,upright,right, downright, down,downleft,left, upleft]
+        for _, n in enumerate([up, right, down, left]):
             if (valid(*n, m, visited)):
+                #Draw visited on matrix
+                m[n[0]][n[1]] = "+"
                 visited.add(n)
                 stack += [n]
                 #print(n, [i,j], _)
@@ -62,11 +91,48 @@ def dfs(x,y, m):
         #print(stack)
         stack = stack[1:]
 
+        #Render each iteration to visualize BFS
+        renderMatrix(m, texture_map, visited)
+        clear()
+
+    #End point
+    end_point = goal
+
+
+    for e in visited:
+        m[e[0]][e[1]] = "+"
+
+
+    #Draw path
     while goal != (x,y):
         print(goal)
         goal = parents[goal]
         m[goal[0]][goal[1]] = "0"
 
-    print(*["".join(r) for r in m], sep='\n')
+    #Draw starting point
 
-dfs(1,25, m)
+    m[x][y] = "A"
+
+    m[end_point[0]][end_point[1]] = "B"
+
+    renderMatrix(m, texture_map,visited)
+
+
+
+
+def main():
+    texture_map = {
+        "#": "#",
+        ".": " ",
+        "|": "|",
+        "A": "A",
+        "B": "B",
+        "+": "+",
+        "0": "0",
+    }
+    while 1:
+        dfs(*map(int,input().split()), m, texture_map)
+
+
+if __name__ == "__main__" :
+    main()
