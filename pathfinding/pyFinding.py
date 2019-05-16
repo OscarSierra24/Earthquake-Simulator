@@ -44,7 +44,7 @@ def dfs(x,y, m):
             goal = (i,j)
             break
 
-        #Neightbors
+        #neighbours
         up = (i+1,j)
         down = (i-1,j)
         left = (i,j-1)

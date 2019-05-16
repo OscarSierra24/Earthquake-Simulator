@@ -74,7 +74,7 @@ func generateExits(nExits int, mapArray *[][]string) [][]int {
 	var i int
 	var exitArray [][]int
 	for i < nExits {
-
+		rand.Seed(time.Now().UTC().UnixNano())
 		rand.Shuffle(len(border), func(i, j int) {
 			border[i], border[j] = border[j], border[i]
 		})
@@ -275,6 +275,7 @@ func Start() {
 	}
 
 	fmt.Println(exits)
+	pathfinding.BFS(1, 1, &mapData, WALL, FLOOR, DOOR)
 	renderBuilding(mapData, people, texture, skins)
-	pathfinding.DFS(1, 1, &mapData, WALL, FLOOR, DOOR)
+
 }
