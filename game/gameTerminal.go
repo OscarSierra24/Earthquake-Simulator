@@ -165,7 +165,7 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins 
 		})
 
 		//Walking speed aleatorization
-		max := 1500
+		max := 1200
 		min := 100
 
 		inside := 1
@@ -223,13 +223,13 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 }
 
 // Returns [][]  for chan(int,1 ) of available floor
-func getFloor(mapData [][]string) [][]chan (int) {
-	var floor [][]chan (int)
-	nTokens := 3
+func getFloor(mapData [][]string) [][]chan struct{} {
+	var floor [][]chan struct{}
+	nTokens := 5
 	for _, row := range mapData {
-		var tmp []chan (int)
+		var tmp []chan struct{}
 		for range row {
-			tmpChan := make(chan int, nTokens)
+			tmpChan := make(chan struct{}, nTokens)
 			//tmp_chan <- 1
 			tmp = append(tmp, tmpChan)
 
@@ -240,17 +240,16 @@ func getFloor(mapData [][]string) [][]chan (int) {
 	return floor
 }
 
-func (p person) run(path [][]int, floor [][]chan (int)) {
+func (p person) run(path [][]int, floor [][]chan struct{}) {
 	lastX, lastY := -1, -1
+	//var tokenCurrent chan struct{}
+	//var tokenNext chan struct{}
 	for len(path) > 0 {
-		//p.isInside = false
-		time.Sleep(time.Duration(p.Speed) * time.Millisecond)
 		x, y := path[0][0], path[0][1]
 		path = path[1:]
-		//fmt.Println("Waiting for token")
 
 		//Ocupy next pos
-		floor[x][y] <- 1
+		floor[x][y] <- struct{}{}
 		lastX, lastY = x, y
 
 		//Logic
@@ -260,11 +259,16 @@ func (p person) run(path [][]int, floor [][]chan (int)) {
 		//Release last pos
 		<-floor[p.Position[0]][p.Position[1]]
 
+		//Wait for next move
+		time.Sleep(time.Duration(p.Speed) * time.Millisecond)
+		//fmt.Println("Still here")
 	}
 	//Take person out of building
 	*p.isInside = 0
 	//End of path release token
 	<-floor[lastX][lastY]
+	//
+	//<-floor[p.Position[0]][p.Position[1]]
 
 }
 
@@ -289,7 +293,7 @@ func showStats(people []person) {
 //Start ...
 func Start() {
 	//Setup
-	mapFile := "game/maps/map1.map"
+	mapFile := "game/maps/out.map"
 
 	//Read user input
 	reader := bufio.NewReader(os.Stdin)
@@ -314,7 +318,7 @@ func Start() {
 	fmt.Print("Time (seconds) for people to run : ")
 	text, _ = reader.ReadString('\n')
 	text = strings.Replace(text, "\n", "", -1)
-	running_time, err := strconv.Atoi(text)
+	runningTime, err := strconv.Atoi(text)
 	if err != nil {
 		fmt.Println("Not a number")
 		os.Exit(-1)
@@ -370,9 +374,9 @@ func Start() {
 	floor := getFloor(mapData)
 
 	//Populate floor
-	for _, p := range people {
-		floor[p.Position[0]][p.Position[1]] <- 1
-	}
+	//for _, p := range people {
+	//	floor[p.Position[0]][p.Position[1]] <- 1
+	//}
 
 	//Generate the exits for the people
 	generateExits(nExits, &mapData)
@@ -397,7 +401,7 @@ func Start() {
 
 	//Timer
 	go func() {
-		t := time.NewTimer(time.Duration(running_time) * time.Second)
+		t := time.NewTimer(time.Duration(runningTime) * time.Second)
 
 		<-t.C
 		running = false
@@ -407,13 +411,13 @@ func Start() {
 	for running {
 		clear()
 		elapsedTime := time.Now().Sub(startTime).Seconds()
-		timeLeft := math.Floor((float64(running_time)-elapsedTime)*100) / 100
+		timeLeft := math.Floor((float64(runningTime)-elapsedTime)*100) / 100
 
 		fmt.Println(timeLeft, "Seconds left for building to collapse")
 		renderBuilding(mapData, people, texture, skins)
 		showStats(people)
 
-		time.Sleep(250 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 
 	}
 
@@ -427,4 +431,9 @@ func Start() {
 	}
 
 	fmt.Println(nPeople, "were inside the building,", survivors, "were able to get out")
+
+	//Debug stuff
+	for _, p := range people {
+		fmt.Println(p.Position, *p.isInside, p.skin)
+	}
 }
