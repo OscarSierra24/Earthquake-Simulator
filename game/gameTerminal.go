@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/OscarSierra24/Earthquake-Simulator/pathfinding"
@@ -270,8 +272,28 @@ func Start() {
 	//Setup
 	mapFile := "game/maps/map1.map"
 
-	nPeople := 50
-	nExits := 3
+	//Read user input
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Number of people (< 300): ")
+	text, _ := reader.ReadString('\n')
+	text = strings.Replace(text, "\n", "", -1)
+	nPeople, err := strconv.Atoi(text)
+
+	if err != nil {
+		fmt.Println("Not a number")
+		os.Exit(-1)
+	}
+	fmt.Print("Number of exits (< 50) : ")
+	text, _ = reader.ReadString('\n')
+	text = strings.Replace(text, "\n", "", -1)
+	nExits, err := strconv.Atoi(text)
+	if err != nil {
+		fmt.Println("Not a number")
+		os.Exit(-1)
+	}
+
+	//nPeople = 200
+	//nExits := 3
 
 	//Texture map
 	texture := map[string]string{
@@ -327,6 +349,7 @@ func Start() {
 	//Generate the exits for the people
 	generateExits(nExits, &mapData)
 
+	//Tell everyone to start running
 	for _, p := range people {
 		path := pathfinding.BFS(
 			p.Position[0],
@@ -336,13 +359,16 @@ func Start() {
 			FLOOR,
 			DOOR,
 		)
-		fmt.Println(path)
 		//time.Sleep(1 * time.Second)
 		go p.run(path, floor)
 	}
 
-	var i int
-	//Print render every 250ms
+	//Timer
+	go func() {
+		time.NewTimer(2 * time.Second)
+	}()
+
+	//Print render every 250ms while timer is up
 	for {
 		clear()
 		renderBuilding(mapData, people, texture, skins)
@@ -359,15 +385,6 @@ func Start() {
 				fmt.Print(p.skin, " ")
 			}
 		}
-		fmt.Println()
-		go func() {
-			for {
-
-				fmt.Printf("\rOn %d/10", i)
-				i++
-				time.Sleep(50 * time.Millisecond)
-			}
-		}()
 
 		time.Sleep(250 * time.Millisecond)
 
