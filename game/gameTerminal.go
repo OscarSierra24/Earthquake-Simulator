@@ -28,7 +28,7 @@ type person struct {
 	//Skin for printing
 	skin string
 	//Is inside building
-	isInside bool
+	isInside *int
 }
 
 func loadLevelFromFile(filename string) [][]string {
@@ -165,6 +165,8 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins 
 		max := 1500
 		min := 50
 
+		inside := 1
+
 		people = append(
 			people,
 			person{
@@ -172,7 +174,7 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins 
 				(rand.Intn(max-min) + min),
 				mapArray,
 				skins[0],
-				true,
+				&inside,
 			},
 		)
 	}
@@ -185,14 +187,19 @@ func clear() {
 }
 
 func renderBuilding(mapData [][]string, people []person, textures map[string]string, skins []string) {
+	//for _, person := range people {
+	//fmt.Print(person.isInside)
+	//}
+	fmt.Println()
 	for i, row := range mapData {
 		for j, column := range row {
 			p := false
 			skin := "p"
 			for _, person := range people {
 				if i == person.Position[0] && j == person.Position[1] {
+					//fmt.Println(person.isInside)
 					skin = person.skin
-					p = true && person.isInside
+					p = true && *person.isInside == 1
 					break
 				}
 			}
@@ -232,6 +239,7 @@ func getFloor(mapData [][]string) [][]chan (int) {
 func (p person) run(path [][]int, floor [][]chan (int)) {
 	lastX, lastY := -1, -1
 	for len(path) > 0 {
+		//p.isInside = false
 		time.Sleep(time.Duration(p.Speed) * time.Millisecond)
 		x, y := path[0][0], path[0][1]
 		path = path[1:]
@@ -249,8 +257,10 @@ func (p person) run(path [][]int, floor [][]chan (int)) {
 		<-floor[p.Position[0]][p.Position[1]]
 
 	}
+	//
+	fmt.Println("WHY THIS IS NOT RUNNING")
 	//Take person out of building
-	p.isInside = false
+	*p.isInside = 0
 	//End of path release token
 	<-floor[lastX][lastY]
 
