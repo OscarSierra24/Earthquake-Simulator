@@ -34,6 +34,8 @@ func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL strin
 
 		if (*matrix)[i][j] == GOAL {
 			goalX, goalY = i, j
+			///LOLOLOLO
+			break
 		}
 
 		//neighbours
