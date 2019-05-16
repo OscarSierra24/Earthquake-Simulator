@@ -22,11 +22,13 @@ type person struct {
 	//Position in building
 	Position []int
 	//Walking speed
-	Speed float32
+	Speed int
 	//Reference to map
 	mapData *[][]string
 	//Skin for printing
 	skin string
+	//Is inside building
+	isInside bool
 }
 
 func loadLevelFromFile(filename string) [][]string {
@@ -158,13 +160,19 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins 
 		rand.Shuffle(len(skins), func(i, j int) {
 			skins[i], skins[j] = skins[j], skins[i]
 		})
+
+		//Walking speed aleatorization
+		max := 1500
+		min := 50
+
 		people = append(
 			people,
 			person{
 				point,
-				rand.Float32() * 10,
+				(rand.Intn(max-min) + min),
 				mapArray,
 				skins[0],
+				true,
 			},
 		)
 	}
@@ -183,8 +191,8 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 			skin := "p"
 			for _, person := range people {
 				if i == person.Position[0] && j == person.Position[1] {
-					p = true
 					skin = person.skin
+					p = true && person.isInside
 					break
 				}
 			}
@@ -222,21 +230,30 @@ func getFloor(mapData [][]string) [][]chan (int) {
 }
 
 func (p person) run(path [][]int, floor [][]chan (int)) {
+	lastX, lastY := -1, -1
 	for len(path) > 0 {
-		time.Sleep(400 * time.Millisecond)
+		time.Sleep(time.Duration(p.Speed) * time.Millisecond)
 		x, y := path[0][0], path[0][1]
 		path = path[1:]
 		//fmt.Println("Waiting for token")
+
 		//Ocupy next pos
 		floor[x][y] <- 1
-		//fmt.Println("Release token")
-		//Release last pos
-		<-floor[p.Position[0]][p.Position[1]]
+		lastX, lastY = x, y
+
 		//Logic
 		p.Position[0] = x
 		p.Position[1] = y
 
+		//Release last pos
+		<-floor[p.Position[0]][p.Position[1]]
+
 	}
+	//Take person out of building
+	p.isInside = false
+	//End of path release token
+	<-floor[lastX][lastY]
+
 }
 
 //Start ...
@@ -318,7 +335,7 @@ func Start() {
 	for {
 		clear()
 		renderBuilding(mapData, people, texture, skins)
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond)
 	}
 
 	//fmt.Println(exits, "<- Exits location")
