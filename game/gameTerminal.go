@@ -64,20 +64,7 @@ func loadLevelFromFile(filename string) [][]string {
 
 //adds exits to mapArray and returns the coords as an array
 func generateExits(nExits int, mapArray *[][]string) [][]int {
-	var border [][]int
-
-	for i, row := range *mapArray {
-		for j := range row {
-			//Checks if coords are in border
-			if i == 0 || i == len(*mapArray)-1 || j == 0 || j == len(row)-1 {
-				border = append(
-					border,
-					[]int{i, j},
-				)
-			}
-
-		}
-	}
+	border := getBorder(mapArray)
 	var i int
 	var exitArray [][]int
 	for i < nExits {
@@ -272,6 +259,37 @@ func (p person) run(path [][]int, floor [][]chan struct{}) {
 
 }
 
+//Get border, returns coords of the border to a given matrix
+func getBorder(mapArray *[][]string) [][]int {
+	var border [][]int
+	for i, row := range *mapArray {
+		for j := range row {
+			//Checks if coords are in border
+			if i == 0 || i == len(*mapArray)-1 || j == 0 || j == len(row)-1 {
+				border = append(
+					border,
+					[]int{i, j},
+				)
+			}
+
+		}
+	}
+	return border
+}
+
+//Check state
+//Checks and changes state of person
+func checkState(exits [][]int, people *[]person) {
+	for _, e := range exits {
+		for _, p := range *people {
+			if e[0] == p.Position[0] && e[1] == p.Position[1] {
+				*p.isInside = 0
+			}
+		}
+	}
+
+}
+
 //Show stats about who is in and out
 func showStats(people []person) {
 	fmt.Print("People inside building: ")
@@ -379,7 +397,8 @@ func Start() {
 	//}
 
 	//Generate the exits for the people
-	generateExits(nExits, &mapData)
+	exits := generateExits(nExits, &mapData)
+	fmt.Println(exits)
 
 	//Tell everyone to start running
 	for _, p := range people {
@@ -410,6 +429,7 @@ func Start() {
 	//Print render every 250ms while timer is up
 	for running {
 		clear()
+		checkState(exits, &people)
 		elapsedTime := time.Now().Sub(startTime).Seconds()
 		timeLeft := math.Floor((float64(runningTime)-elapsedTime)*100) / 100
 
