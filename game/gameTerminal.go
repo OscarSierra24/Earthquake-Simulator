@@ -163,7 +163,7 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins 
 
 		//Walking speed aleatorization
 		max := 1500
-		min := 50
+		min := 100
 
 		inside := 1
 
@@ -184,6 +184,7 @@ func generatePeople(nPeople int, mapArray *[][]string, positions [][]int, skins 
 
 func clear() {
 	fmt.Println("\033[2J")
+	//os.Stdout.WriteString("\x1b[3;J\x1b[H\x1b[2J")
 }
 
 func renderBuilding(mapData [][]string, people []person, textures map[string]string, skins []string) {
@@ -257,8 +258,6 @@ func (p person) run(path [][]int, floor [][]chan (int)) {
 		<-floor[p.Position[0]][p.Position[1]]
 
 	}
-	//
-	fmt.Println("WHY THIS IS NOT RUNNING")
 	//Take person out of building
 	*p.isInside = 0
 	//End of path release token
@@ -341,11 +340,37 @@ func Start() {
 		//time.Sleep(1 * time.Second)
 		go p.run(path, floor)
 	}
-	//Print render every 200ms
+
+	var i int
+	//Print render every 250ms
 	for {
 		clear()
 		renderBuilding(mapData, people, texture, skins)
-		time.Sleep(50 * time.Millisecond)
+		fmt.Print("People inside building: ")
+		for _, p := range people {
+			if *p.isInside == 1 {
+				fmt.Print(p.skin, " ")
+			}
+		}
+		fmt.Println()
+		fmt.Print("People outisde building:")
+		for _, p := range people {
+			if *p.isInside == 0 {
+				fmt.Print(p.skin, " ")
+			}
+		}
+		fmt.Println()
+		go func() {
+			for {
+
+				fmt.Printf("\rOn %d/10", i)
+				i++
+				time.Sleep(50 * time.Millisecond)
+			}
+		}()
+
+		time.Sleep(250 * time.Millisecond)
+
 	}
 
 	//fmt.Println(exits, "<- Exits location")
