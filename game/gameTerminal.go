@@ -437,7 +437,7 @@ func Start() {
 		renderBuilding(mapData, people, texture, skins)
 		showStats(people)
 
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(250 * time.Millisecond)
 
 	}
 
