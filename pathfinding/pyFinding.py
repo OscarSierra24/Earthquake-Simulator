@@ -5,7 +5,11 @@ from os import system
 '''
 Consts for map
 '''
+#Edit this if you got a diferent layout
 DOOR = "|"
+WALL = "#"
+FLOOR =  "."
+
 
 def read_map(path: str) -> []:
     data = []
@@ -27,7 +31,8 @@ m = read_map(path)
 def renderMatrix(mapData, texture,visited):
     for i,row in enumerate(mapData):
         for j, c in enumerate(row):
-
+            #Print for path
+            #Print for everything else
             print(
                 texture[c],
                 end = ' ',
@@ -48,6 +53,7 @@ def dfs(x,y, m, texture_map):
     #Visited
     visited = {(x,y)}
 
+    #Hash table for parents
     parents = {
 
     }
@@ -122,16 +128,22 @@ def dfs(x,y, m, texture_map):
 
 def main():
     texture_map = {
-        "#": "#",
+        "#": "▫️",
         ".": " ",
-        "|": "|",
+        "|": "🚪",
         "A": "A",
         "B": "B",
         "+": "+",
         "0": "0",
     }
     while 1:
-        dfs(*map(int,input().split()), m, texture_map)
+        try:
+            coords  = map(int,input("Coords (x y): ").split())
+        except:
+            print("Invalid coords \nex: 1 2")
+            continue
+        
+        dfs(*coords, m, texture_map)
 
 
 if __name__ == "__main__" :
