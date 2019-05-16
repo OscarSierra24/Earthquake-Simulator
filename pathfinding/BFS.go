@@ -45,17 +45,18 @@ func BFS(x int, y int, matrix *[][]string, WALL string, FLOOR string, GOAL strin
 		upright := []int{i + 1, j + 1}
 		upleft := []int{i + 1, j - 1}
 		downleft := []int{i - 1, j - 1}
-		downright := []int{i - 1, j + 2}
+		downright := []int{i - 1, j + 1}
 
 		var neighbours [][]int
-		neighbours = append(neighbours, right)
-		neighbours = append(neighbours, left)
-		neighbours = append(neighbours, up)
-		neighbours = append(neighbours, down)
-		neighbours = append(neighbours, upright)
 		neighbours = append(neighbours, upleft)
-		neighbours = append(neighbours, downleft)
+		neighbours = append(neighbours, up)
+		neighbours = append(neighbours, upright)
+		neighbours = append(neighbours, right)
 		neighbours = append(neighbours, downright)
+		neighbours = append(neighbours, down)
+		neighbours = append(neighbours, downleft)
+		neighbours = append(neighbours, left)
+
 		//Shuffle
 		//rand.Seed(time.Now().UTC().UnixNano())
 		//rand.Shuffle(len(neighbours), func(i, j int) {
