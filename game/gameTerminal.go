@@ -206,7 +206,7 @@ func renderBuilding(mapData [][]string, people []person, textures map[string]str
 // Returns [][]  for chan(int,1 ) of available floor
 func getFloor(mapData [][]string) [][]chan (int) {
 	var floor [][]chan (int)
-	nTokens := 100
+	nTokens := 3
 	for _, row := range mapData {
 		var tmp []chan (int)
 		for range row {
@@ -249,10 +249,10 @@ func Start() {
 
 	//Texture map
 	texture := map[string]string{
-		//Floor
-		"#": "◽️",
 		//Wall
-		".": " ",
+		"#": "#",
+		//Floor
+		".": ".",
 		//Door
 		"|": "🚪",
 		//Path taken,
@@ -262,6 +262,22 @@ func Start() {
 	//People skins
 	skins := []string{
 		"👮‍", "👩", "👨‍", "👶", "👨",
+	}
+
+	//Default
+	texture = map[string]string{
+		//Wall
+		"#": "#",
+		//Floor
+		".": ".",
+		//Door
+		"|": "|",
+		//Path taken,
+		"+": "+",
+	}
+	skins = []string{
+		"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
 	}
 	//Setup
 
